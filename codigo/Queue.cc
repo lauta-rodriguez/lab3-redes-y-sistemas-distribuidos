@@ -80,9 +80,8 @@ void Queue::handleMessage(cMessage *msg)
     }
     else
     {
-        enqueueMessage(msg);
+        enqueueInBuffer(msg);
     }
-}
 }
 
 /* If the buffer is not full, enqueue message
