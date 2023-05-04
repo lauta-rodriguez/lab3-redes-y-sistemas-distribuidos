@@ -52,7 +52,7 @@ void Generator::handleMessage(cMessage *msg)
     // create new packet
     cPacket *pkt;
     pkt = new cPacket("packet");
-    pkt->setByteLength(par("packetBySize"));
+    pkt->setByteLength(par("packetByteSize"));
     // send to the output
     send(pkt, "out");
 
