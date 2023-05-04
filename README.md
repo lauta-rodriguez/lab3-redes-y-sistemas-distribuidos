@@ -7,15 +7,34 @@
 
 ## Caso de estudio 1
 
-> - NodeTx a Queue: datarate = 1 Mbps y delay = 100 us
-> - Queue a NodeRx: datarate = 1 Mbps y delay = 100 us
-> - Queue a Sink: datarate = 0.5 Mbps
+| Conexión           | Datarate       | Delay  |
+|--------------------|----------------|--------|
+| `NodeTx` a `Queue` | **`1.0 Mbps`** | 100 us |
+| `Queue` a `NodeRx` | **`1.0 Mbps`** | 100 us |
+| `Queue` a `Sink`   | **`0.5 Mbps`** |        |
+
+Vemos que hay un cuello de botella en NodeRx, ya que los paquetes llegan a
+NodeRx a un rate mucho más rápido (**`1.0 Mbps`**) de lo que salen
+(**`0.5 Mbps`**). Es decir que el buffer de NodeRx no se vacía lo
+suficientemente rápido como para dar lugar a los paquetes entrantes.
+
+Esto es un problema de **control de flujo**.
 
 ## Caso de estudio 2
 
-> - NodeTx a Queue: datarate = 1 Mbps y delay = 100 us
-> - Queue a NodeRx: datarate = 0.5 Mbps y delay = 100 us
-> - Queue a Sink: datarate = 1 Mbps
+| Conexión           | Datarate       | Delay  |
+|--------------------|----------------|--------|
+| `NodeTx` a `Queue` | **`1.0 Mbps`** | 100 us |
+| `Queue` a `NodeRx` | **`0.5 Mbps`** | 100 us |
+| `Queue` a `Sink`   | **`1.0 Mbps`** |        |
+
+Vemos que hay un cuello de botella llegando Queue, desde NodeTx, ya que los
+paquetes llegan a la Queue a un rate mucho más rápido (**`1.0 Mbps`**) del que
+la Queue es capaz de procesarlos y enviarlos (**`0.5 Mbps`**). Es decir que el
+la Queue no se vacía lo suficientemente rápido como para dar lugar a
+los paquetes entrantes.
+
+Esto es un problema de **control de congestión**.
 
 ## Preguntas
 
