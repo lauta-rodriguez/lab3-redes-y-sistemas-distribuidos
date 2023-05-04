@@ -47,10 +47,15 @@ void Queue::initialize()
 {
     buffer.setName("buffer");
     endServiceEvent = new cMessage("endService");
+
+    droppedPackets = 0u;
+    packetDropVector.setName("Dropped packets");
 }
 
 void Queue::finish()
 {
+    // stats record
+    recordScalar("Number of dropped packets", droppedPackets);
 }
 
 void Queue::handleMessage(cMessage *msg)
@@ -92,7 +97,9 @@ void Queue::enqueueMessage(cMessage *msg)
         // drop the packet
         delete msg;
         this->bubble("packet dropped");
-        packetDropVector.record(1); // en vez de 1 iria un acc (creo)
+        // update the dropped packets counter
+        droppedPackets++;
+        packetDropVector.record(droppedPackets);
     }
     else
     {
