@@ -91,7 +91,7 @@ void Queue::enqueueInBuffer(cMessage *msg)
 {
 
     // check buffer limit
-    if (buffer.getLength() >= par("bufferSize").longValue())
+    if (buffer.getLength() >= par("bufferSize").intValue())
     {
         // drop the packet
         delete msg;
