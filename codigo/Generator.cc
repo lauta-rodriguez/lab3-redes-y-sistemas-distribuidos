@@ -6,13 +6,16 @@
 
 using namespace omnetpp;
 
-class Generator : public cSimpleModule {
+class Generator : public cSimpleModule
+{
 private:
     cMessage *sendMsgEvent;
     cStdDev transmissionStats;
+
 public:
     Generator();
     virtual ~Generator();
+
 protected:
     virtual void initialize();
     virtual void finish();
@@ -20,16 +23,18 @@ protected:
 };
 Define_Module(Generator);
 
-Generator::Generator() {
+Generator::Generator()
+{
     sendMsgEvent = NULL;
-
 }
 
-Generator::~Generator() {
+Generator::~Generator()
+{
     cancelAndDelete(sendMsgEvent);
 }
 
-void Generator::initialize() {
+void Generator::initialize()
+{
     transmissionStats.setName("TotalTransmissions");
     // create the send packet
     sendMsgEvent = new cMessage("sendEvent");
@@ -37,13 +42,17 @@ void Generator::initialize() {
     scheduleAt(par("generationInterval"), sendMsgEvent);
 }
 
-void Generator::finish() {
+void Generator::finish()
+{
 }
 
-void Generator::handleMessage(cMessage *msg) {
+void Generator::handleMessage(cMessage *msg)
+{
 
     // create new packet
-    cMessage *pkt = new cMessage("packet");
+    cPacket *pkt;
+    pkt = new cPacket("packet");
+    pkt->setByteLength(par("packetBySize"));
     // send to the output
     send(pkt, "out");
 

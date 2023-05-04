@@ -6,14 +6,24 @@
 
 using namespace omnetpp;
 
-class Queue: public cSimpleModule {
+class Queue : public cSimpleModule
+{
 private:
     cQueue buffer;
     cMessage *endServiceEvent;
     simtime_t serviceTime;
+
+    // variables for statistics logging
+    // here goes an accumulator for the number of dropped packets
+    cOutVector packetDropVector;
+
+    // helper function for handling the queuing process in the buffer
+    void enqueueInBuffer(cMessage *msg);
+
 public:
     Queue();
     virtual ~Queue();
+
 protected:
     virtual void initialize();
     virtual void finish();
@@ -22,45 +32,76 @@ protected:
 
 Define_Module(Queue);
 
-Queue::Queue() {
+Queue::Queue()
+{
     endServiceEvent = NULL;
 }
 
-Queue::~Queue() {
+Queue::~Queue()
+{
     cancelAndDelete(endServiceEvent);
 }
 
-void Queue::initialize() {
+void Queue::initialize()
+{
     buffer.setName("buffer");
     endServiceEvent = new cMessage("endService");
 }
 
-void Queue::finish() {
+void Queue::finish()
+{
 }
 
-void Queue::handleMessage(cMessage *msg) {
+void Queue::handleMessage(cMessage *msg)
+{
 
     // if msg is signaling an endServiceEvent
-    if (msg == endServiceEvent) {
+    if (msg == endServiceEvent)
+    {
         // if packet in buffer, send next one
-        if (!buffer.isEmpty()) {
+        if (!buffer.isEmpty())
+        {
             // dequeue packet
-            cMessage *pkt = (cMessage*) buffer.pop();
+            cPacket *pkt = (cPacket *)buffer.pop();
             // send packet
             send(pkt, "out");
             // start new service
-            serviceTime = par("serviceTime");
+            // serviceTime now depends on pkt->getDuration()
+            serviceTime = pkt->getDuration();
             scheduleAt(simTime() + serviceTime, endServiceEvent);
         }
-    } else { // if msg is a data packet
+    }
+    else
+    {
+        enqueueMessage(msg);
+    }
+}
+}
+
+/* If the buffer is not full, enqueue message
+ * Otherwise, drop it
+ */
+void Queue::enqueueMessage(cMessage *msg)
+{
+
+    // check buffer limit
+    if (buffer.getLength() >= par("bufferSize").longValue())
+    {
+        // drop the packet
+        delete msg;
+        this->bubble("packet dropped");
+        packetDropVector.record(1); // en vez de 1 iria un acc (creo)
+    }
+    else
+    {
         // enqueue the packet
         buffer.insert(msg);
         // if the server is idle
-        if (!endServiceEvent->isScheduled()) {
+        if (!endServiceEvent->isScheduled())
+        {
             // start the service
-            scheduleAt(simTime(), endServiceEvent);
+            scheduleAt(simTime() + 0, endServiceEvent);
         }
     }
-}
 
 #endif /* QUEUE */
