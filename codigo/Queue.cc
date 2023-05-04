@@ -14,7 +14,7 @@ private:
     simtime_t serviceTime;
 
     // variables for statistics logging
-    // here goes an accumulator for the number of dropped packets
+    unsigned int droppedPackets; // acc for the number of dropped packets
     cOutVector packetDropVector;
     cOutVector bufferSizeVector;
 
