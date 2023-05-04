@@ -40,4 +40,11 @@ Esto es un problema de **control de congestión**.
 
 1. ¿Qué diferencia observa entre el caso de estudio 1 y 2?
 
+    En el caso de estudio 1 tenemos un problema en los *end hosts*, mientras que en el caso de estudio 2 tenemos un problema en la *red*.
+
 2. ¿Cuál es la fuente limitante en cada uno?
+    - Caso 1: la fuente limitante es la velocidad a la que los paquetes son
+    enviados desde el receptor (NodeRx) hacia el resumidero (Sink).
+
+    - Caso 2: la fuente limitante es la capacidad de la red de procesar y hacer
+    llegar a destino (NodeRx) los paquetes provenientes del emisor (NodeTx).
