@@ -16,6 +16,7 @@ private:
     // variables for statistics logging
     // here goes an accumulator for the number of dropped packets
     cOutVector packetDropVector;
+    cOutVector bufferSizeVector;
 
     // helper function for handling the queuing process in the buffer
     void enqueueInBuffer(cMessage *msg);
@@ -54,6 +55,7 @@ void Queue::finish()
 
 void Queue::handleMessage(cMessage *msg)
 {
+    bufferSizeVector.record(buffer.getLength());
 
     // if msg is signaling an endServiceEvent
     if (msg == endServiceEvent)
