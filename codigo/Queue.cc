@@ -87,7 +87,7 @@ void Queue::handleMessage(cMessage *msg)
 /* If the buffer is not full, enqueue message
  * Otherwise, drop it
  */
-void Queue::enqueueMessage(cMessage *msg)
+void Queue::enqueueInBuffer(cMessage *msg)
 {
 
     // check buffer limit
