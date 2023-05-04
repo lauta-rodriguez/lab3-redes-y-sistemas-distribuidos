@@ -111,5 +111,6 @@ void Queue::enqueueInBuffer(cMessage *msg)
             scheduleAt(simTime() + 0, endServiceEvent);
         }
     }
+}
 
 #endif /* QUEUE */
