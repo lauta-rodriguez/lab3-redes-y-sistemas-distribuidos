@@ -10,6 +10,9 @@ class Sink : public cSimpleModule {
 private:
     cStdDev delayStats;
     cOutVector delayVector;
+    int delPacketsCount;
+    cOutVector deliveredPackets;
+
 public:
     Sink();
     virtual ~Sink();
@@ -31,12 +34,16 @@ void Sink::initialize(){
     // stats and vector names
     delayStats.setName("TotalDelay");
     delayVector.setName("Delay");
+
+    delPacketsCount = 0;
+    deliveredPackets.setName("Delivered packets");
 }
 
 void Sink::finish(){
     // stats record at the end of simulation
     recordScalar("Avg delay", delayStats.getMean());
     recordScalar("Number of packets", delayStats.getCount());
+    recordScalar("Delivered packets", delPacketsCount);
 }
 
 void Sink::handleMessage(cMessage * msg) {
@@ -45,6 +52,10 @@ void Sink::handleMessage(cMessage * msg) {
     // update stats
     delayStats.collect(delay);
     delayVector.record(delay);
+
+    delPacketsCount++;
+    deliveredPackets.record(delPacketsCount);
+
     // delete msg
     delete(msg);
 }
