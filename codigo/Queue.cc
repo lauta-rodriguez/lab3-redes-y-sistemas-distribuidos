@@ -50,18 +50,19 @@ void Queue::initialize()
 
     droppedPackets = 0u;
     packetDropVector.setName("Dropped packets");
+
+    bufferSizeVector.setName("Buffer size");
 }
 
 void Queue::finish()
 {
     // stats record
     recordScalar("Number of dropped packets", droppedPackets);
+    recordScalar("Final buffer size", buffer.getLength());
 }
 
 void Queue::handleMessage(cMessage *msg)
 {
-    bufferSizeVector.record(buffer.getLength());
-
     // if msg is signaling an endServiceEvent
     if (msg == endServiceEvent)
     {
@@ -104,6 +105,10 @@ void Queue::enqueueInBuffer(cMessage *msg)
     {
         // enqueue the packet
         buffer.insert(msg);
+
+        // record stats
+        bufferSizeVector.record(buffer.getLength());
+
         // if the server is idle
         if (!endServiceEvent->isScheduled())
         {
