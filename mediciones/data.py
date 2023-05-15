@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+
 param = 'config' # key for the simulation parameters
 scalar = 'scalars' # key for the scalars array
 idx_delivered_packets = 7 # index of the delivered packets in the scalars json file
@@ -31,3 +33,27 @@ def get_avg_delivered(data, sim, sim_time):
 
 def get_avg_delay(data, sim):
     return data[sim][scalar][idx_avg_delay]['value']
+
+def ofrecida_vs_util(carga_ofrecida, carga_util, p, c):
+    plt.plot(carga_ofrecida, carga_util)
+
+    plt.xlabel('Carga ofrecida (paquetes/seg)')
+    plt.ylabel('Carga útil (paquetes/seg)')
+
+    plt.xlim(0, 1)
+    plt.ylim(0, 50)
+
+    plt.savefig(f"p{p}-c{c}-util.png")
+    plt.clf()
+
+def ofrecida_vs_retardo(carga_ofrecida, retraso,  p, c):
+    plt.plot(carga_ofrecida, retraso)
+
+    plt.xlabel('Carga ofrecida (paquetes/seg)')
+    plt.ylabel('Retardo (seg)')
+
+    plt.xlim(0, 1)
+    plt.ylim(0, 50)
+
+    plt.savefig(f"p{p}-c{c}-retardo.png")
+    plt.clf()
