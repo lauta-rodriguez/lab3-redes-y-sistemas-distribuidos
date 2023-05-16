@@ -102,40 +102,22 @@ void TransportRx::handleBufferService(cMessage *msg)
 
 void TransportRx::handleMessage(cMessage *msg)
 {
-    // detect if msg is Feedback, coming from the SubNet
-    if (msg->getKind() == 2)
+    if (msg == endServiceEvent)
     {
-        // send it to the Transmitter right away
-        fdbcount++;
-        send(msg, "connSubnet$o");
+        handleBufferService(msg);
     }
-
-    // if msg is signaling an endServiceEvent
-    else
+    // else if (msg = endFeedbackServiceEvent)
+    //{
+    //     handleFeedbackService(msg);
+    // }
+    else if (msg->getKind() == 2) // feedback packet
     {
-        if (msg == endServiceEvent)
-        {
-            // if packet in buffer, send next one
-            if (!buffer.isEmpty())
-            {
-                // dequeue packet
-                cPacket *pkt = (cPacket *)buffer.pop();
-
-                // record stats
-                bufferSizeVector.record(buffer.getLength());
-
-                // send packet
-                send(pkt, "fromRxToSink");
-                // start new service
-                // serviceTime now depends on pkt->getDuration()
-                serviceTime = pkt->getDuration();
-                scheduleAt(simTime() + serviceTime, endServiceEvent);
-            }
-        }
-        else
-        {
-            enqueueInBuffer(msg);
-        }
+        // enqueueInFeedback(msg);
+        generateFeedback();
+    }
+    else // normal packet
+    {
+        enqueueInBuffer(msg);
     }
 }
 
