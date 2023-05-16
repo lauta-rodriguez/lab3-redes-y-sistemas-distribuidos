@@ -109,30 +109,32 @@ void TransportTx::handleMessage(cMessage *msg)
         mod = k;
     }
 
-    // if msg is signaling an endServiceEvent
-    if (msg == endServiceEvent)
+    if (msg->getKind() != 2)
     {
-        // if packet in buffer, send next one
-        if (!buffer.isEmpty() && msg->getKind() != 2)
+        if (msg == endServiceEvent)
         {
-            // dequeue packet
-            cPacket *pkt = (cPacket *)buffer.pop();
-            // send packet
-            send(pkt, "connSubnet$o");
-            // start new service
-            // serviceTime now depends on pkt->getDuration()
-            serviceTime = pkt->getDuration();
+            if (!buffer.isEmpty())
+            {
+                // dequeue packet
+                cPacket *pkt = (cPacket *)buffer.pop();
+                // send packet
+                send(pkt, "connSubnet$o");
+                // start new service
+                // serviceTime now depends on pkt->getDuration()
+                serviceTime = pkt->getDuration();
 
-            if (bottleneck) {
-                serviceTime *= mod;
+                if (bottleneck)
+                {
+                    serviceTime *= mod;
+                }
+
+                scheduleAt(simTime() + serviceTime, endServiceEvent);
             }
-
-            scheduleAt(simTime() + serviceTime, endServiceEvent);
         }
-    }
-    else if (msg->getKind() != 2)
-    {
-        enqueueInBuffer(msg);
+        else
+        {
+            enqueueInBuffer(msg);
+        }
     }
 }
 
