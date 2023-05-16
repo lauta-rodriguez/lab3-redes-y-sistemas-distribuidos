@@ -1,50 +1,22 @@
 # Grupo 29
+
 ## Integrantes:
+
 - Lara Kurtz, lara.kurtz@mi.unc.edu.ar
 - Lautaro Rodri­guez, lautaro.rodriguez@mi.unc.edu.ar
 
-# Tarea Análisis
+# Abstract
 
-## Caso de estudio 1
+En este informe se analizan problemas de flujo y congestión en la capa de transporte utilizando la herramienta de simulación **Omnet++**, que nos permite modelar y simular redes mediante eventos discretos.
 
-| Conexión           | Datarate       | Delay  |
-|--------------------|----------------|--------|
-| `NodeTx` a `Queue` | **`1.0 Mbps`** | 100 us |
-| `Queue` a `NodeRx` | **`1.0 Mbps`** | 100 us |
-| `Queue` a `Sink`   | **`0.5 Mbps`** |        |
+Realizamos simulaciones en dos redes básicas que abstraen el comportamiento de una red real. Una de estas redes presenta problemas de flujo y congestión.
 
-Vemos que hay un cuello de botella en NodeRx, ya que los paquetes llegan a
-NodeRx a un rate mucho más rápido (**`1.0 Mbps`**) de lo que salen
-(**`0.5 Mbps`**). Es decir que el buffer de NodeRx no se vacía lo
-suficientemente rápido como para dar lugar a los paquetes entrantes.
+La segunda red es una versión modificada de la primera, en la cual se actualizan los módulos generadores y receptores para permitir el envío y la recepción de mensajes de control. Además, se agrega un canal de comunicación entre el emisor y el receptor, lo que permite al emisor conocer el estado de la red y regular su tasa de envío de paquetes.
 
-Esto es un problema de **control de flujo**.
+Para mitigar los problemas de flujo y congestión, proponemos la siguiente solución: un algoritmo simple que responde a los cuellos de botella, independientemente de la ubicación en la red donde se produzcan.
 
-## Caso de estudio 2
+En cualquier caso, se busca controlar el problema al reducir la velocidad de inyección de paquetes en la red por parte del transmisor.
 
-| Conexión           | Datarate       | Delay  |
-|--------------------|----------------|--------|
-| `NodeTx` a `Queue` | **`1.0 Mbps`** | 100 us |
-| `Queue` a `NodeRx` | **`0.5 Mbps`** | 100 us |
-| `Queue` a `Sink`   | **`1.0 Mbps`** |        |
+# Introducción
 
-Vemos que hay un cuello de botella llegando Queue, desde NodeTx, ya que los
-paquetes llegan a la Queue a un rate mucho más rápido (**`1.0 Mbps`**) del que
-la Queue es capaz de procesarlos y enviarlos (**`0.5 Mbps`**). Es decir que el
-la Queue no se vacía lo suficientemente rápido como para dar lugar a
-los paquetes entrantes.
-
-Esto es un problema de **control de congestión**.
-
-## Preguntas
-
-1. ¿Qué diferencia observa entre el caso de estudio 1 y 2?
-
-    En el caso de estudio 1 tenemos un problema en los *end hosts*, mientras que en el caso de estudio 2 tenemos un problema en la *red*.
-
-2. ¿Cuál es la fuente limitante en cada uno?
-    - Caso 1: la fuente limitante es la velocidad a la que los paquetes son
-    enviados desde el receptor (NodeRx) hacia el resumidero (Sink).
-
-    - Caso 2: la fuente limitante es la capacidad de la red de procesar y hacer
-    llegar a destino (NodeRx) los paquetes provenientes del emisor (NodeTx).
+![kickstart network](./imagenes/network.svg "network")
