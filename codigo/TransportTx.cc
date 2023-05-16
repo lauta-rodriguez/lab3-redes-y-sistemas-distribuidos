@@ -30,6 +30,8 @@ private:
 
     // keeps track of how long should the congestion handling algorithm run
     unsigned int TIMER;
+    const unsigned int k = 20;
+    unsigned int mod;
     bool congestion;
 
     // helper function for handling the queuing process in the buffer
@@ -72,6 +74,7 @@ void TransportTx::initialize()
 
     TIMER = 5u;
     CONGESTION_WINDOW = 0u;
+    mod = k;
 
     congestion = false;
 }
@@ -90,6 +93,11 @@ void TransportTx::handleMessage(cMessage *msg)
     if (msg->getKind() == 2 && !congestion)
     {
         congestion = true;
+        // si no pasaron 4 segundos desde la ultima congestion
+        if (simTime() - CONGESTION_WINDOW < 10u)
+        {
+            mod *= 2;
+        }
         CONGESTION_WINDOW = simTime() + TIMER;
     }
     // uso un else/if porque no quiero que el cambio anterior provoque una 
@@ -97,6 +105,8 @@ void TransportTx::handleMessage(cMessage *msg)
     else if (simTime() >= CONGESTION_WINDOW && congestion) // pasó la ventana de congestión
     {
         congestion = false;
+        // reset mode a default value
+        mod = k;
     }
 
     // if msg is signaling an endServiceEvent
@@ -114,7 +124,7 @@ void TransportTx::handleMessage(cMessage *msg)
             serviceTime = pkt->getDuration();
 
             if (congestion) {
-                serviceTime *= 4;
+                serviceTime *= mod;
             }
 
             scheduleAt(simTime() + serviceTime, endServiceEvent);
