@@ -99,7 +99,7 @@ void TransportTx::handleMessage(cMessage *msg)
     }
     // uso un else/if porque no quiero que el cambio anterior provoque una 
     // congestión ficticia
-    else if (simTime() >= BOTTLENECK_WINDOW && bottleneck) // pasó la ventana de congestión
+    if (simTime() >= BOTTLENECK_WINDOW && bottleneck) // pasó la ventana de congestión
     {
         bottleneck = false;
         // reset mode a default value
