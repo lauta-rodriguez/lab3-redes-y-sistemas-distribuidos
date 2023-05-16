@@ -113,29 +113,29 @@ void Queue::enqueueInBuffer(cMessage *msg)
         {
             // Feedback message initialization
             FeedbackPkt *feedbackPkt = new FeedbackPkt();
-            feedbackPkt->setBufferSNFull(true);
 
             // set packet type to Feedback (2)
             feedbackPkt->setKind(2);
 
+            feedbackPkt->setByteLength(20);
+
+            feedbackPkt->setBufferSNFull(true);
+
             // the next message to be sent will be Feedback
-            buffer.insertBefore(buffer.front(), msg);
+            buffer.insertBefore(buffer.front(), feedbackPkt);
         }
 
-        else
+        // enqueue the packet
+        buffer.insert(msg);
+
+        // record stats
+        bufferSizeVector.record(buffer.getLength());
+
+        // if the server is idle
+        if (!endServiceEvent->isScheduled())
         {
-            // enqueue the packet
-            buffer.insert(msg);
-
-            // record stats
-            bufferSizeVector.record(buffer.getLength());
-
-            // if the server is idle
-            if (!endServiceEvent->isScheduled())
-            {
-                // start the service
-                scheduleAt(simTime() + 0, endServiceEvent);
-            }
+            // start the service
+            scheduleAt(simTime() + 0, endServiceEvent);
         }
     }
 }
