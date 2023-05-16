@@ -41,6 +41,8 @@ protected:
     virtual void initialize();
     virtual void finish();
     virtual void handleMessage(cMessage *msg);
+
+    virtual void generateFeedback();
 };
 
 Define_Module(TransportRx);
@@ -115,15 +117,24 @@ void TransportRx::handleMessage(cMessage *msg)
     }
 }
 
+void TransportRx::generateFeedback()
+{
+    // Feedback message initialization
+    FeedbackPkt *feedbackPkt = new FeedbackPkt();
+    // set packet type to Feedback (2)
+    feedbackPkt->setKind(2);
+    feedbackPkt->setByteLength(20);
+    feedbackPkt->setBufferRXFull(true);
+    // the next message to be sent will be Feedback
+    //enqueueInFeedback(feedbackPkt);
+    send(feedbackPkt, "connSubnet$o"); // funciona pero es mágico
+}
+
 /* If the buffer is not full, enqueue message
  * Otherwise, drop it
  */
 void TransportRx::enqueueInBuffer(cMessage *msg)
 {
-
-    // threshold calculation
-    int threshold = 0.85 * par("bufferSize").intValue();
-
     // check buffer limit
     if (buffer.getLength() >= par("bufferSize").intValue())
     {
@@ -136,22 +147,13 @@ void TransportRx::enqueueInBuffer(cMessage *msg)
     }
     else
     {
-        // if threshold is exceeded, a Feedback message is generated
+        // threshold calculation
+        int threshold = 0.8 * par("bufferSize").intValue();
+
+        // if threshold is exceeded, generate a feedback message
         if (buffer.getLength() >= threshold)
         {
-            // Feedback message initialization
-            FeedbackPkt *feedbackPkt = new FeedbackPkt();
-
-            // set packet type to Feedback (2)
-            feedbackPkt->setKind(2);
-
-            feedbackPkt->setByteLength(20);
-
-            feedbackPkt->setBufferRXFull(true);
-
-            // the next message to be sent will be Feedback
-            //buffer.insertBefore(buffer.front(), feedbackPkt);
-            send(feedbackPkt, "connSubnet$o");
+            generateFeedback();
         }
 
         // enqueue the packet
