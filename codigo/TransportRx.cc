@@ -43,6 +43,8 @@ protected:
     virtual void handleMessage(cMessage *msg);
 
     virtual void generateFeedback();
+
+    virtual void handleBufferService(cMessage *msg);
 };
 
 Define_Module(TransportRx);
@@ -76,6 +78,26 @@ void TransportRx::finish()
     recordScalar("Receiver: Number of dropped packets", droppedPackets);
     recordScalar("Receiver: Final buffer size", buffer.getLength());
     recordScalar("Receiver: Feedback messages count", fdbcount);
+}
+
+void TransportRx::handleBufferService(cMessage *msg)
+{
+    // if packet in buffer, send next one
+    if (!buffer.isEmpty())
+    {
+        // dequeue packet
+        cPacket *pkt = (cPacket *)buffer.pop();
+
+        // record stats
+        bufferSizeVector.record(buffer.getLength());
+        // send packet
+        send(pkt, "fromRxToSink");
+
+        // start new service
+        // serviceTime now depends on pkt->getDuration()
+        serviceTime = pkt->getDuration();
+        scheduleAt(simTime() + serviceTime, endServiceEvent);
+    }
 }
 
 void TransportRx::handleMessage(cMessage *msg)
