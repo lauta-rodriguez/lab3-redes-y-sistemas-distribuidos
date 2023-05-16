@@ -77,6 +77,9 @@ void Queue::handleMessage(cMessage *msg)
             // serviceTime now depends on pkt->getDuration()
             serviceTime = pkt->getDuration();
             scheduleAt(simTime() + serviceTime, endServiceEvent);
+
+            // record stats
+            bufferSizeVector.record(buffer.getLength());
         }
     }
     else
