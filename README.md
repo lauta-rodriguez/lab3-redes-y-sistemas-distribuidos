@@ -19,4 +19,4 @@ En cualquier caso, se busca controlar el problema al reducir la velocidad de iny
 
 # Introducción
 
-![kickstart network](./imagenes/network.svg "network")
+![kickstart network](/imagenes/network.svg "network")
