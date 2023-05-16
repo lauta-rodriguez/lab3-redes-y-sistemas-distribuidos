@@ -38,9 +38,6 @@ private:
     // helper function for handling the queuing process in the buffer
     void enqueueInBuffer(cMessage *msg);
 
-    // calculate serviceTime dinamycally
-    simtime_t getServiceTime(cMessage *msg);
-
 public:
     TransportTx();
     virtual ~TransportTx();
