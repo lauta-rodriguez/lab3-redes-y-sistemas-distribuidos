@@ -29,7 +29,7 @@ private:
     cOutVector bufferSizeVector;
 
     // keeps track of how long should the  handling algorithm run
-    unsigned int TIMER;
+    const unsigned int TIMER = 5;
     const unsigned int k = 20;
     unsigned int mod;
     bool bottleneck;
@@ -72,7 +72,6 @@ void TransportTx::initialize()
 
     bufferSizeVector.setName("Transmitter Buffer size");
 
-    TIMER = 5u;
     BOTTLENECK_WINDOW = 0u;
     mod = k;
 
