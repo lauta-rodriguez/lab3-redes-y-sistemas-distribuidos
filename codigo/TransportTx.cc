@@ -28,11 +28,17 @@ private:
     cOutVector packetDropVector;
     cOutVector bufferSizeVector;
 
-    // keeps track of how long should the  handling algorithm run
+    // defines how many seconds the network is considered to be bottlenecked
+    // after a feedback message is recieved
     const unsigned int TIMER = 5;
+    // if a bottleneck occurs in less than PENALTY_WINDOW seconds since the last
+    // one, a penalty is applied to the transmitter
     const unsigned int PENALTY_WINDOW = 10;
+    // default modifier for serviceTime
     const unsigned int k = 20;
+    // variable modifier for serviceTime
     unsigned int mod;
+    // flag for bottleneck
     bool bottleneck;
 
     // helper function for handling the queuing process in the buffer
@@ -85,24 +91,23 @@ void TransportTx::finish()
 
 void TransportTx::handleMessage(cMessage *msg)
 {
-    // encontramos congestion, seteamos estado de congestion y determinamos
-    // en que momento de la simulacion se considera terminado
+    // determine if a bottleneck has occurred
     if (msg->getKind() == 2 && !bottleneck)
     {
         bottleneck = true;
-        // si no pasaron 4 segundos desde la ultima congestion
+        // apply penalty to the transmitter if appropriate
         if (simTime() - BOTTLENECK_WINDOW < PENALTY_WINDOW)
         {
             mod *= 2;
         }
         BOTTLENECK_WINDOW = simTime() + TIMER;
     }
-    // uso un else/if porque no quiero que el cambio anterior provoque una 
-    // congestión ficticia
-    if (simTime() >= BOTTLENECK_WINDOW && bottleneck) // pasó la ventana de congestión
+
+    // determine if bottleneck is over
+    if (simTime() >= BOTTLENECK_WINDOW && bottleneck)
     {
         bottleneck = false;
-        // reset mode a default value
+        // reset modifier to default value
         mod = k;
     }
 
