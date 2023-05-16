@@ -19,7 +19,9 @@ class TransportRx : public cSimpleModule
 {
 private:
     cQueue buffer;
+    cQueue feedbackBuffer;
     cMessage *endServiceEvent;
+    cMessage *endFeedbackServiceEvent;
     simtime_t serviceTime;
 
     // feedback msg counter
@@ -32,6 +34,7 @@ private:
 
     // helper function for handling the queuing process in the buffer
     void enqueueInBuffer(cMessage *msg);
+    void enqueueInFeedback(FeedbackPkt *pkt);
 
 public:
     TransportRx();
@@ -45,6 +48,7 @@ protected:
     virtual void generateFeedback();
 
     virtual void handleBufferService(cMessage *msg);
+    virtual void handleFeedbackService(cMessage *msg);
 };
 
 Define_Module(TransportRx);
@@ -52,6 +56,7 @@ Define_Module(TransportRx);
 TransportRx::TransportRx()
 {
     endServiceEvent = NULL;
+    endFeedbackServiceEvent = NULL;
 }
 
 TransportRx::~TransportRx()
@@ -78,6 +83,24 @@ void TransportRx::finish()
     recordScalar("Receiver: Number of dropped packets", droppedPackets);
     recordScalar("Receiver: Final buffer size", buffer.getLength());
     recordScalar("Receiver: Feedback messages count", fdbcount);
+}
+
+void TransportRx::handleFeedbackService(cMessage *msg)
+{
+    // if packet in buffer, send next one
+    if (!feedbackBuffer.isEmpty())
+    {
+        // dequeue packet
+        cPacket *pkt = (cPacket *)buffer.pop();
+
+        // send packet
+        send(pkt, "connSubnet$o");
+
+        // start new service
+        // serviceTime now depends on pkt->getDuration()
+        // serviceTime = pkt->getDuration();
+        scheduleAt(simTime() + 0, endServiceEvent);
+    }
 }
 
 void TransportRx::handleBufferService(cMessage *msg)
@@ -130,8 +153,20 @@ void TransportRx::generateFeedback()
     feedbackPkt->setByteLength(20);
     feedbackPkt->setBufferRXFull(true);
     // the next message to be sent will be Feedback
-    //enqueueInFeedback(feedbackPkt);
+    // enqueueInFeedback(feedbackPkt);
     send(feedbackPkt, "connSubnet$o"); // funciona pero es mágico
+}
+
+void TransportRx::enqueueInFeedback(FeedbackPkt *pkt)
+{
+
+    feedbackBuffer.insertBefore(buffer.front(), pkt);
+    // if the server is idle
+    if (!endFeedbackServiceEvent->isScheduled()) // no hay service events scheduleados
+    {
+        // start the service
+        scheduleAt(simTime() + 0, endFeedbackServiceEvent);
+    }
 }
 
 /* If the buffer is not full, enqueue message
