@@ -4,6 +4,8 @@
 #include <string.h>
 #include <omnetpp.h>
 
+#include "FeedbackPkt_m.h"
+
 using namespace omnetpp;
 
 class Queue : public cSimpleModule
@@ -91,6 +93,9 @@ void Queue::handleMessage(cMessage *msg)
 void Queue::enqueueInBuffer(cMessage *msg)
 {
 
+    // threshold calculation
+    int threshold = 0.85 * par("bufferSize").intValue();
+
     // check buffer limit
     if (buffer.getLength() >= par("bufferSize").intValue())
     {
@@ -103,6 +108,23 @@ void Queue::enqueueInBuffer(cMessage *msg)
     }
     else
     {
+        // if threshold is exceeded, a Feedback message is generated
+        if (buffer.getLength() >= threshold)
+        {
+            // Feedback message initialization
+            FeedbackPkt *feedbackPkt = new FeedbackPkt();
+
+            // set packet type to Feedback (2)
+            feedbackPkt->setKind(2);
+
+            feedbackPkt->setByteLength(20);
+
+            feedbackPkt->setBufferSNFull(true);
+
+            // the next message to be sent will be Feedback
+            buffer.insertBefore(buffer.front(), feedbackPkt);
+        }
+
         // enqueue the packet
         buffer.insert(msg);
 
