@@ -30,6 +30,7 @@ private:
 
     // keeps track of how long should the  handling algorithm run
     const unsigned int TIMER = 5;
+    const unsigned int PENALTY_WINDOW = 10;
     const unsigned int k = 20;
     unsigned int mod;
     bool bottleneck;
@@ -93,7 +94,7 @@ void TransportTx::handleMessage(cMessage *msg)
     {
         bottleneck = true;
         // si no pasaron 4 segundos desde la ultima congestion
-        if (simTime() - BOTTLENECK_WINDOW < 10u)
+        if (simTime() - BOTTLENECK_WINDOW < PENALTY_WINDOW)
         {
             mod *= 2;
         }
