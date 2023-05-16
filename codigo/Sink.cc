@@ -6,7 +6,8 @@
 
 using namespace omnetpp;
 
-class Sink : public cSimpleModule {
+class Sink : public cSimpleModule
+{
 private:
     cStdDev delayStats;
     cOutVector delayVector;
@@ -16,6 +17,7 @@ private:
 public:
     Sink();
     virtual ~Sink();
+
 protected:
     virtual void initialize();
     virtual void finish();
@@ -24,13 +26,16 @@ protected:
 
 Define_Module(Sink);
 
-Sink::Sink() {
+Sink::Sink()
+{
 }
 
-Sink::~Sink() {
+Sink::~Sink()
+{
 }
 
-void Sink::initialize(){
+void Sink::initialize()
+{
     // stats and vector names
     delayStats.setName("TotalDelay");
     delayVector.setName("Delay");
@@ -39,14 +44,16 @@ void Sink::initialize(){
     deliveredPackets.setName("Delivered packets");
 }
 
-void Sink::finish(){
+void Sink::finish()
+{
     // stats record at the end of simulation
     recordScalar("Avg delay", delayStats.getMean());
     recordScalar("Number of packets", delayStats.getCount());
     recordScalar("Delivered packets", delPacketsCount);
 }
 
-void Sink::handleMessage(cMessage * msg) {
+void Sink::handleMessage(cMessage *msg)
+{
     // compute queuing delay
     simtime_t delay = simTime() - msg->getCreationTime();
     // update stats
@@ -57,7 +64,7 @@ void Sink::handleMessage(cMessage * msg) {
     deliveredPackets.record(delPacketsCount);
 
     // delete msg
-    delete(msg);
+    delete (msg);
 }
 
 #endif /* SINK */

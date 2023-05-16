@@ -4,6 +4,8 @@
 #include <string.h>
 #include <omnetpp.h>
 
+#include "FeedbackPkt_m.h"
+
 using namespace omnetpp;
 
 class Queue : public cSimpleModule
@@ -91,6 +93,9 @@ void Queue::handleMessage(cMessage *msg)
 void Queue::enqueueInBuffer(cMessage *msg)
 {
 
+    // threshold calculation
+    int threshold = 0.85 * par("bufferSize").intValue();
+
     // check buffer limit
     if (buffer.getLength() >= par("bufferSize").intValue())
     {
@@ -103,17 +108,34 @@ void Queue::enqueueInBuffer(cMessage *msg)
     }
     else
     {
-        // enqueue the packet
-        buffer.insert(msg);
-
-        // record stats
-        bufferSizeVector.record(buffer.getLength());
-
-        // if the server is idle
-        if (!endServiceEvent->isScheduled())
+        // if threshold is exceeded, a Feedback message is generated
+        if (buffer.getLength() >= threshold)
         {
-            // start the service
-            scheduleAt(simTime() + 0, endServiceEvent);
+            // Feedback message initialization
+            FeedbackPkt *feedbackPkt = new FeedbackPkt();
+            feedbackPkt->setBufferSNFull(true);
+
+            // set packet type to Feedback (2)
+            feedbackPkt->setKind(2);
+
+            // the next message to be sent will be Feedback
+            buffer.insertBefore(buffer.front(), msg);
+        }
+
+        else
+        {
+            // enqueue the packet
+            buffer.insert(msg);
+
+            // record stats
+            bufferSizeVector.record(buffer.getLength());
+
+            // if the server is idle
+            if (!endServiceEvent->isScheduled())
+            {
+                // start the service
+                scheduleAt(simTime() + 0, endServiceEvent);
+            }
         }
     }
 }
