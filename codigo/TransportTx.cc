@@ -84,8 +84,13 @@ void TransportTx::finish()
 
 void TransportTx::handleMessage(cMessage *msg)
 {
+    if(msg->getKind()==2)
+    {
+        ;
+    }
+
     // if msg is signaling an endServiceEvent
-    if (msg == endServiceEvent)
+    else if (msg == endServiceEvent)
     {
         // if packet in buffer, send next one
         if (!buffer.isEmpty())

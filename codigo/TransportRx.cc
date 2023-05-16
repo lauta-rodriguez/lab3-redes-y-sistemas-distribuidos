@@ -22,6 +22,9 @@ private:
     cMessage *endServiceEvent;
     simtime_t serviceTime;
 
+    // feedback msg counter
+    unsigned int fdbcount;
+
     // variables for statistics logging
     unsigned int droppedPackets; // acc for the number of dropped packets
     cOutVector packetDropVector;
@@ -61,6 +64,8 @@ void TransportRx::initialize()
     packetDropVector.setName("Receiver: Dropped packets");
 
     bufferSizeVector.setName("Receiver: Buffer size");
+
+    fdbcount = 0u;
 }
 
 void TransportRx::finish()
@@ -68,6 +73,7 @@ void TransportRx::finish()
     // stats record
     recordScalar("Receiver: Number of dropped packets", droppedPackets);
     recordScalar("Receiver: Final buffer size", buffer.getLength());
+    recordScalar("Receiver: Feedback messages count", fdbcount);
 }
 
 void TransportRx::handleMessage(cMessage *msg)
@@ -76,28 +82,36 @@ void TransportRx::handleMessage(cMessage *msg)
     if (msg->getKind() == 2)
     {
         // send it to the Transmitter right away
+        fdbcount++;
         send(msg, "connSubnet$o");
     }
 
     // if msg is signaling an endServiceEvent
-    else if (msg == endServiceEvent)
-    {
-        // if packet in buffer, send next one
-        if (!buffer.isEmpty())
-        {
-            // dequeue packet
-            cPacket *pkt = (cPacket *)buffer.pop();
-            // send packet
-            send(pkt, "fromRxToSink");
-            // start new service
-            // serviceTime now depends on pkt->getDuration()
-            serviceTime = pkt->getDuration();
-            scheduleAt(simTime() + serviceTime, endServiceEvent);
-        }
-    }
     else
     {
-        enqueueInBuffer(msg);
+        if (msg == endServiceEvent)
+        {
+            // if packet in buffer, send next one
+            if (!buffer.isEmpty())
+            {
+                // dequeue packet
+                cPacket *pkt = (cPacket *)buffer.pop();
+
+                // record stats
+                bufferSizeVector.record(buffer.getLength());
+
+                // send packet
+                send(pkt, "fromRxToSink");
+                // start new service
+                // serviceTime now depends on pkt->getDuration()
+                serviceTime = pkt->getDuration();
+                scheduleAt(simTime() + serviceTime, endServiceEvent);
+            }
+        }
+        else
+        {
+            enqueueInBuffer(msg);
+        }
     }
 }
 
@@ -123,21 +137,23 @@ void TransportRx::enqueueInBuffer(cMessage *msg)
     else
     {
         // if threshold is exceeded, a Feedback message is generated
-        /*if (buffer.getLength() >= threshold)
+        if (buffer.getLength() >= threshold)
         {
             // Feedback message initialization
             FeedbackPkt *feedbackPkt = new FeedbackPkt();
-            feedbackPkt->setBufferRXFull(true);
 
             // set packet type to Feedback (2)
             feedbackPkt->setKind(2);
 
+            feedbackPkt->setByteLength(20);
+
+            feedbackPkt->setBufferRXFull(true);
+
             // the next message to be sent will be Feedback
-            buffer.insertBefore(buffer.front(), feedbackPkt);
+            //buffer.insertBefore(buffer.front(), feedbackPkt);
+            send(feedbackPkt, "connSubnet$o");
         }
 
-        else
-        {*/
         // enqueue the packet
         buffer.insert(msg);
 
