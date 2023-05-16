@@ -21,6 +21,7 @@ private:
     cQueue buffer;
     cMessage *endServiceEvent;
     simtime_t serviceTime;
+    simtime_t CONGESTION_WINDOW;
 
     // variables for statistics logging
     unsigned int droppedPackets; // acc for the number of dropped packets
@@ -28,8 +29,7 @@ private:
     cOutVector bufferSizeVector;
 
     // keeps track of how long should the congestion handling algorithm run
-    unsigned int timer;
-
+    unsigned int TIMER;
     bool congestion;
 
     // helper function for handling the queuing process in the buffer
@@ -70,9 +70,10 @@ void TransportTx::initialize()
 
     bufferSizeVector.setName("Transmitter Buffer size");
 
-    timer = 0u;
+    TIMER = 5u;
+    CONGESTION_WINDOW = 0u;
 
-    congestion = true;
+    congestion = false;
 }
 
 void TransportTx::finish()
@@ -84,16 +85,25 @@ void TransportTx::finish()
 
 void TransportTx::handleMessage(cMessage *msg)
 {
-    if(msg->getKind()==2)
+    // encontramos congestion, seteamos estado de congestion y determinamos
+    // en que momento de la simulacion se considera terminado
+    if (msg->getKind() == 2 && !congestion)
     {
-        ;
+        congestion = true;
+        CONGESTION_WINDOW = simTime() + TIMER;
+    }
+    // uso un else/if porque no quiero que el cambio anterior provoque una 
+    // congestión ficticia
+    else if (simTime() >= CONGESTION_WINDOW && congestion) // pasó la ventana de congestión
+    {
+        congestion = false;
     }
 
     // if msg is signaling an endServiceEvent
-    else if (msg == endServiceEvent)
+    if (msg == endServiceEvent)
     {
         // if packet in buffer, send next one
-        if (!buffer.isEmpty())
+        if (!buffer.isEmpty() && msg->getKind() != 2)
         {
             // dequeue packet
             cPacket *pkt = (cPacket *)buffer.pop();
@@ -103,10 +113,14 @@ void TransportTx::handleMessage(cMessage *msg)
             // serviceTime now depends on pkt->getDuration()
             serviceTime = pkt->getDuration();
 
+            if (congestion) {
+                serviceTime *= 4;
+            }
+
             scheduleAt(simTime() + serviceTime, endServiceEvent);
         }
     }
-    else
+    else if (msg->getKind() != 2)
     {
         enqueueInBuffer(msg);
     }
