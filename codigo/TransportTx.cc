@@ -21,18 +21,18 @@ private:
     cQueue buffer;
     cMessage *endServiceEvent;
     simtime_t serviceTime;
-    simtime_t CONGESTION_WINDOW;
+    simtime_t BOTTLENECK_WINDOW;
 
     // variables for statistics logging
     unsigned int droppedPackets; // acc for the number of dropped packets
     cOutVector packetDropVector;
     cOutVector bufferSizeVector;
 
-    // keeps track of how long should the congestion handling algorithm run
+    // keeps track of how long should the  handling algorithm run
     unsigned int TIMER;
     const unsigned int k = 20;
     unsigned int mod;
-    bool congestion;
+    bool bottleneck;
 
     // helper function for handling the queuing process in the buffer
     void enqueueInBuffer(cMessage *msg);
@@ -73,10 +73,10 @@ void TransportTx::initialize()
     bufferSizeVector.setName("Transmitter Buffer size");
 
     TIMER = 5u;
-    CONGESTION_WINDOW = 0u;
+    BOTTLENECK_WINDOW = 0u;
     mod = k;
 
-    congestion = false;
+    bottleneck = false;
 }
 
 void TransportTx::finish()
@@ -90,21 +90,21 @@ void TransportTx::handleMessage(cMessage *msg)
 {
     // encontramos congestion, seteamos estado de congestion y determinamos
     // en que momento de la simulacion se considera terminado
-    if (msg->getKind() == 2 && !congestion)
+    if (msg->getKind() == 2 && !bottleneck)
     {
-        congestion = true;
+        bottleneck = true;
         // si no pasaron 4 segundos desde la ultima congestion
-        if (simTime() - CONGESTION_WINDOW < 10u)
+        if (simTime() - BOTTLENECK_WINDOW < 10u)
         {
             mod *= 2;
         }
-        CONGESTION_WINDOW = simTime() + TIMER;
+        BOTTLENECK_WINDOW = simTime() + TIMER;
     }
     // uso un else/if porque no quiero que el cambio anterior provoque una 
     // congestión ficticia
-    else if (simTime() >= CONGESTION_WINDOW && congestion) // pasó la ventana de congestión
+    else if (simTime() >= BOTTLENECK_WINDOW && bottleneck) // pasó la ventana de congestión
     {
-        congestion = false;
+        bottleneck = false;
         // reset mode a default value
         mod = k;
     }
@@ -123,7 +123,7 @@ void TransportTx::handleMessage(cMessage *msg)
             // serviceTime now depends on pkt->getDuration()
             serviceTime = pkt->getDuration();
 
-            if (congestion) {
+            if (bottleneck) {
                 serviceTime *= mod;
             }
 
