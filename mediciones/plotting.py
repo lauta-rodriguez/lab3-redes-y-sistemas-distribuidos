@@ -33,13 +33,14 @@ carga_ofrecida = [0]
 carga_util = [0]
 retraso = [0]
 
-# iterate over all simulation results for this parte/caso
+# iterate over all simulation scalar results for this parte/caso
 for i in range(1, 20):
-    filename = f"p{p}-c{c}-0{i}.json"
+    fscalar = f"scalar-p{p}-c{c}-0{i}.json"
+    fvector = f"vector-p{p}-c{c}-0{i}.json"
 
-    if os.path.isfile(filename):
+    if os.path.isfile(fscalar):
         # open the json file
-        with open(filename) as f:
+        with open(fscalar) as f:
             data = json.load(f)
 
         # the simulation is stored in the first key of the dictionary
@@ -58,13 +59,27 @@ for i in range(1, 20):
         carga_util.append(avg_delivered)
         retraso.append(avg_delay)
 
-    else: # there aren't any more simulations for this parte/caso
+    else:  # there aren't any more simulations for this parte/caso
         break
 
-print(carga_ofrecida)
-print(carga_util)
+    if os.path.isfile(fvector):
+        # open the json file
+        with open(fvector) as g:
+            data = json.load(g)
+
+        # the simulation is stored in the first key of the dictionary
+        sim = list(data.keys())[0]
+
+        tx_time = get_vector_time(data, sim, 'tx')
+        tx_size = get_vector_size(data, sim, 'tx')
+        subnet_time = get_vector_time(data, sim, 'subnet')
+        subnet_size = get_vector_size(data, sim, 'subnet')
+        rx_time = get_vector_time(data, sim, 'rx')
+        rx_size = get_vector_size(data, sim, 'rx')
+
+    else:  # there aren't any more simulations for this parte/caso
+        break
 
 ofrecida_vs_util(carga_ofrecida, carga_util, p, c)
 ofrecida_vs_retardo(carga_ofrecida, retraso, p, c)
-
-# TODO: crear y guardar grafico de retraso vs carga ofrecida
+time_vs_bufferSize(tx_time, tx_size, subnet_time, subnet_size, rx_time, rx_size, p, c)
