@@ -118,14 +118,37 @@ Además, hemos implementado un sistema de penalización que aumenta aún más el
 
 Al igual que en el caso de la red básica, realizamos 5 simulaciones variando el parámetro generationInterval. A continuación, se presentan los resultados obtenidos:
 
+Observamos una ligera mejora en comparación con la red básica, especialmente en el caso 2, donde se presenta un cuello de botella en el nodo de la subred. En esta nueva red, se observa una mayor capacidad para soportar cargas de hasta 5 paquetes por segundo antes de experimentar problemas debido al cuello de botella. En contraste, la red básica solo era capaz de soportar hasta 4 paquetes por segundo antes de enfrentar dificultades.
+
+<br>
 <div style="display: flex; justify-content: center;">
   <img src="./imagenes/ofrecida_vs_util_parte2.png" alt="Ofrecida vs Util" width="45%" style="margin-right: 5px;">
   <img src="./imagenes/ofrecida_vs_retardo_parte2.png" alt="Ofrecida vs Retraso" width="45%">
 </div>
+<br>
 
-Observamos una ligera mejora en comparación con la red básica, especialmente en el caso 2, donde se presenta un cuello de botella en el nodo de la subred. En esta nueva red, se observa una mayor capacidad para soportar cargas de hasta 5 paquetes por segundo antes de experimentar problemas debido al cuello de botella. En contraste, la red básica solo era capaz de soportar hasta 4 paquetes por segundo antes de enfrentar dificultades.
+No hemos incluido un gráfico de carga ofrecida vs. paquetes descartados, ya que en la nueva red no se pierden paquetes, lo cual era el objetivo de nuestro algoritmo. Sin embargo, hemos observado que el retardo aumenta significativamente, debido a que para evitar el cuello de botella, el transmisor inyecta paquetes en la red a un ritmo **mucho** más lento.
+
+En el siguiente gráfico, podemos apreciar el funcionamiento de nuestro algoritmo en el caso de control, donde el cuello de botella se produciría en el receptor:
+
+<br>
+<div style="display: flex; justify-content: center;">
+  <img src="./imagenes/ofrecida_vs_buffer_parte1.png" alt="Ofrecida vs Util" width="45%" style="margin-right: 5px;">
+  <img src="./imagenes/ofrecida_vs_buffer_parte2.png" alt="Ofrecida vs Retraso" width="45%">
+</div>
+<br>
+
+El primer gráfico corresponde a la red básica, donde se produce congestión. En este caso, el receptor alcanza el límite de capacidad de su búfer y se mantiene constante en ese nivel. Por otro lado, en la nueva red implementada, se realiza una regulación del transmisor para evitar el cuello de botella. Esto se logra limitando la velocidad de envío de paquetes, lo que permite al receptor vaciar su búfer de manera más efectiva.
+
+En el segundo gráfico, que representa la nueva red, podemos observar que los picos de ocupación del búfer del receptor están alrededor del 160, que corresponde al 80% de la capacidad total del búfer.
 
 # Discusión
+
+Nuestro algoritmo logra cumplir su objetivo principal al evitar la pérdida de paquetes en la red. Sin embargo, uno de los efectos secundarios de esta estrategia es el aumento significativo en el retardo de entrega de los paquetes.
+
+Observamos que el retardo se incrementa debido a la limitación del send rate del transmisor, que se realiza para evitar la congestión en el receptor. Esta limitación proporciona tiempo adicional al receptor para procesar y liberar los paquetes de su búfer, lo que garantiza que no se sature. Como resultado, la entrega de paquetes experimenta un mayor retardo en comparación con la red básica.
+
+En resumen, aunque nuestro algoritmo es efectivo en evitar la pérdida de paquetes, reconocemos que existe una compensación en forma de mayor retardo en la entrega de paquetes.
 
 # Referencias
 
