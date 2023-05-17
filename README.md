@@ -1,3 +1,5 @@
+# Análisis de flujo y congestión en redes utilizando simulación discreta y mecanismos de feedback
+
 # Grupo 29
 
 ## Integrantes:
@@ -16,6 +18,26 @@ La segunda red es una versión modificada de la primera, en la cual se actualiza
 Para mitigar los problemas de flujo y congestión, proponemos la siguiente solución: un algoritmo simple que responde a los cuellos de botella, independientemente de la ubicación en la red donde se produzcan.
 
 En cualquier caso, se busca controlar el problema al reducir la velocidad de inyección de paquetes en la red por parte del transmisor.
+
+# Cómo comparamos los distintos escenarios
+
+Con el fin de comparar las diferencias de rendimiento entre los distintos casos de estudio y tipos de redes, llevamos a cabo simulaciones en las que variamos el parámetro `generationInterval` de la red. Este parámetro determina el intervalo de tiempo entre cada generación de paquetes.
+
+Utilizamos las siguientes métricas para evaluar el desempeño:
+
+- Carga ofrecida: se refiere a la cantidad de paquetes que se inyectan en la red por segundo. Esta métrica se calcula contando la cantidad de paquetes que salen del buffer del transmisor durante todo el tiempo de simulación
+
+- Carga útil: representa la cantidad de paquetes que llegan al receptor por segundo. Esta métrica se calcula contando la cantidad de paquetes que llegan al 'sink' durante todo el tiempo de simulación.
+
+- Retardo: indica el tiempo que tardan los paquetes desde que salen del transmisor hasta que llegan al receptor. Esta métrica se calcula como el promedio de los retardos de cada paquete.
+
+Cada una de estas métricas corresponde al resultado final de una única simulación. Para realizar un análisis completo, llevamos a cabo múltiples simulaciones utilizando diferentes valores de generationInterval, tales como `0.1`, `0.25`, `0.5`, `0.75` y `1`. A partir de los datos recopilados, generamos las siguientes curvas que representan los resultados de cada simulación:
+
+- Carga ofrecida vs. carga útil: Comparamos la cantidad de paquetes inyectados por segundo con la cantidad de paquetes que llegan al receptor por segundo.
+
+- Carga ofrecida vs. retardo: Comparamos la cantidad de paquetes inyectados por segundo con el tiempo que tardan en ser entregados.
+
+En estas curvas, cada punto corresponde a los resultados obtenidos de una simulación individual.
 
 # Introducción
 
@@ -62,10 +84,6 @@ En ambas situaciones se presenta el mismo obstáculo, que es el resultado de un 
   <img src="./imagenes/ofrecida_vs_retardo_parte1.png" alt="Ofrecida vs Retraso" width="45%">
 </div>
 
-ofrecida_vs_util_parte2.png
-
-ofrecida_vs_retardo_parte2.png
-
 # Algoritmo de control de flujo y congestión
 
 Para implementar el algoritmo propuesto necesitamos modificar la red básica agregadole un canal de comunicación `FeebackChannel` por el cual el receptor `Receiver` envian `mensajes de feedback` que informan el estado de la red al transmisor `Transmitter`, quedando la red de la siguiente forma:
@@ -84,7 +102,7 @@ Se define un tiempo arbitrario `TIMER` durante el cual se considera que la red s
 
 ### Regulación del transmisor
 
-La regulación del transmisor es efectiva cuando se considera que la red se encuentra en estado `bottleneck` y tiene como objetivo brindar tiempo al nodo receptor para liberar espacio en el búfer y _evitar la pérdida de paquetes_.
+La regulación del transmisor es efectiva cuando se considera que la red se encuentra en estado `bottleneck` y tiene como objetivo brindar tiempo al nodo receptor para liberar espacio en el búfer y **evitar la pérdida de paquetes**.
 
 Tanto en la red básica como en la modificada, la velocidad de inyección de paquetes en la red está determinada por la frecuencia de los eventos llamados `endServiceEvent`, los cuales se planifican en función del tiempo actual de la simulación y el `serviceTime` (que es el tiempo necesario para atender un paquete en cola).
 
@@ -93,6 +111,15 @@ Para regular la velocidad de transmisión del transmisor, incrementamos el `serv
 Además, hemos implementado un sistema de penalización que aumenta aún más el `serviceTime` en caso de que ocurran cuellos de botella cercanos en el tiempo.
 
 # Resultados
+
+Al igual que en el caso de la red básica, realizamos 5 simulaciones variando el parámetro generationInterval. A continuación, se presentan los resultados obtenidos:
+
+<div style="display: flex; justify-content: center;">
+  <img src="./imagenes/ofrecida_vs_util_parte2.png" alt="Ofrecida vs Util" width="45%" style="margin-right: 5px;">
+  <img src="./imagenes/ofrecida_vs_retardo_parte2.png" alt="Ofrecida vs Retraso" width="45%">
+</div>
+
+Observamos una ligera mejora en comparación con la red básica, especialmente en el caso 2, donde se presenta un cuello de botella en el nodo de la subred. En esta nueva red, se observa una mayor capacidad para soportar cargas de hasta 5 paquetes por segundo antes de experimentar problemas debido al cuello de botella. En contraste, la red básica solo era capaz de soportar hasta 4 paquetes por segundo antes de enfrentar dificultades.
 
 # Discusión
 
