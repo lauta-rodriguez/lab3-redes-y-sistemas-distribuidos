@@ -53,6 +53,23 @@ Vemos que hay un cuello de botella llegando a Queue desde NodeTx, ya que los paq
 
 Esto es un problema de **control de congestión**.
 
+### Análisis de casos de estudio
+
+En ambas situaciones se presenta el mismo obstáculo, que es el resultado de un nodo que recibe paquetes a una velocidad de 1Mbps pero solo puede procesarlos a una velocidad de 0.5Mbps. La única diferencia radica en el nodo en el que ocurre este cuello de botella. Por lo tanto, se observa que las curvas para ambos casos son idénticas.
+
+![ofrecida vs util](/imagenes/ofrecida_vs_util_parte1.png)
+
+![ofrecida vs retraso](/imagenes/ofrecida_vs_retardo_parte1.png)
+
+<div style="display: flex; justify-content: center;">
+  <img src="./imagenes/ofrecida_vs_util_parte1.png" alt="Ofrecida vs Util" width="400" height="300" style="margin-right: 10px;">
+  <img src="./imagenes/ofrecida_vs_retardo_parte1.png" alt="Ofrecida vs Retraso" width="400" height="300">
+</div>
+
+ofrecida_vs_util_parte2.png
+
+ofrecida_vs_retardo_parte2.png
+
 # Algoritmo de control de flujo y congestión
 
 Para implementar el algoritmo propuesto necesitamos modificar la red básica agregadole un canal de comunicación `FeebackChannel` por el cual el receptor `Receiver` envian `mensajes de feedback` que informan el estado de la red al transmisor `Transmitter`, quedando la red de la siguiente forma:
@@ -84,3 +101,6 @@ Además, hemos implementado un sistema de penalización que aumenta aún más el
 # Discusión
 
 # Referencias
+
+- [Omnet++](https://omnetpp.org/)
+- [Gráficos de carga ofrecida vs carga útil](https://youtu.be/W8r8zSPjeAs)
