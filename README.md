@@ -57,13 +57,9 @@ Esto es un problema de **control de congestión**.
 
 En ambas situaciones se presenta el mismo obstáculo, que es el resultado de un nodo que recibe paquetes a una velocidad de 1Mbps pero solo puede procesarlos a una velocidad de 0.5Mbps. La única diferencia radica en el nodo en el que ocurre este cuello de botella. Por lo tanto, se observa que las curvas para ambos casos son idénticas.
 
-![ofrecida vs util](/imagenes/ofrecida_vs_util_parte1.png)
-
-![ofrecida vs retraso](/imagenes/ofrecida_vs_retardo_parte1.png)
-
 <div style="display: flex; justify-content: center;">
-  <img src="./imagenes/ofrecida_vs_util_parte1.png" alt="Ofrecida vs Util" width="400" height="300" style="margin-right: 10px;">
-  <img src="./imagenes/ofrecida_vs_retardo_parte1.png" alt="Ofrecida vs Retraso" width="400" height="300">
+  <img src="./imagenes/ofrecida_vs_util_parte1.png" alt="Ofrecida vs Util" width="45%" style="margin-right: 5px;">
+  <img src="./imagenes/ofrecida_vs_retardo_parte1.png" alt="Ofrecida vs Retraso" width="45%">
 </div>
 
 ofrecida_vs_util_parte2.png
