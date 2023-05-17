@@ -84,6 +84,10 @@ En ambas situaciones se presenta el mismo obstáculo, que es el resultado de un 
   <img src="./imagenes/ofrecida_vs_retardo_parte1.png" alt="Ofrecida vs Retraso" width="45%">
 </div>
 
+Podemos observar la pérdida de paquetes ocasionada por los cuellos de botella, la pérdida empieza cuando los buffers se congestionan:
+
+![dropped packets](/imagenes/ofrecida_vs_dropped_parte1.png "dropped-packets")
+
 # Algoritmo de control de flujo y congestión
 
 Para implementar el algoritmo propuesto necesitamos modificar la red básica agregadole un canal de comunicación `FeebackChannel` por el cual el receptor `Receiver` envian `mensajes de feedback` que informan el estado de la red al transmisor `Transmitter`, quedando la red de la siguiente forma:
