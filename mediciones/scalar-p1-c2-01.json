@@ -1,0 +1,85 @@
+{
+    "General-0-20230516-20:50:06-47475" : {
+        "attributes" : {
+            "configname" : "General",
+            "datetime" : "20230516-20:50:06",
+            "datetimef" : "20230516-205006",
+            "experiment" : "General",
+            "inifile" : "omnetpp.ini",
+            "iterationvars" : "",
+            "iterationvarsd" : "",
+            "iterationvarsf" : "",
+            "measurement" : "",
+            "network" : "Network",
+            "processid" : "47475",
+            "repetition" : "0",
+            "replication" : "#0",
+            "resultdir" : "results",
+            "runnumber" : "0",
+            "seedset" : "0"
+        },
+        "itervars" : {
+        },
+        "config" : [
+            { "network" : "Network" },
+            { "sim-time-limit" : "200s" },
+            { "Network.nodeTx.gen.generationInterval" : "exponential(0.1)" },
+            { "Network.nodeTx.gen.packetByteSize" : "12500" },
+            { "Network.queue.bufferSize" : "100" },
+            { "Network.nodeRx.queue.bufferSize" : "200" },
+            { "Network.nodeTx.queue.bufferSize" : "2000000" }
+        ],
+        "scalars" : [
+            {
+                "module" : "Network.nodeTx.gen",
+                "name" : "Generated packets",
+                "value" : 1979
+            },
+            {
+                "module" : "Network.nodeTx.queue",
+                "name" : "Number of dropped packets",
+                "value" : 0
+            },
+            {
+                "module" : "Network.nodeTx.queue",
+                "name" : "Final buffer size",
+                "value" : 8
+            },
+            {
+                "module" : "Network.queue",
+                "name" : "Number of dropped packets",
+                "value" : 871
+            },
+            {
+                "module" : "Network.queue",
+                "name" : "Final buffer size",
+                "value" : 99
+            },
+            {
+                "module" : "Network.nodeRx.sink",
+                "name" : "Avg delay",
+                "value" : 19.275376807379
+            },
+            {
+                "module" : "Network.nodeRx.sink",
+                "name" : "Number of packets",
+                "value" : 998
+            },
+            {
+                "module" : "Network.nodeRx.sink",
+                "name" : "Delivered packets",
+                "value" : 998
+            },
+            {
+                "module" : "Network.nodeRx.queue",
+                "name" : "Number of dropped packets",
+                "value" : 0
+            },
+            {
+                "module" : "Network.nodeRx.queue",
+                "name" : "Final buffer size",
+                "value" : 0
+            }
+        ]
+    }
+}

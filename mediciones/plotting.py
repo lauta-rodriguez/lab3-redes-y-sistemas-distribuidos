@@ -48,11 +48,13 @@ for i in range(1, 20):
 
         # simulation parameters
         sim_time = get_sim_time(data, sim)
-        gen_interval = get_gen_interval(data, sim)
+        gen_interval = get_gen_interval(data, sim, p)
 
         # simulation results
         avg_delivered = get_avg_delivered(data, sim, sim_time)
+        #print(f"avg_delivered: {avg_delivered}")
         avg_delay = get_avg_delay(data, sim)
+        #print(f"avg_delay: {avg_delay}")
 
         # append value to each axis data
         carga_ofrecida.append(gen_interval)

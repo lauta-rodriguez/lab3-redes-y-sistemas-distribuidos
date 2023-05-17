@@ -1,0 +1,101 @@
+{
+    "General-0-20230516-21:02:14-48808" : {
+        "attributes" : {
+            "configname" : "General",
+            "datetime" : "20230516-21:02:14",
+            "datetimef" : "20230516-210214",
+            "experiment" : "General",
+            "inifile" : "omnetpp.ini",
+            "iterationvars" : "",
+            "iterationvarsd" : "",
+            "iterationvarsf" : "",
+            "measurement" : "",
+            "network" : "Network",
+            "processid" : "48808",
+            "repetition" : "0",
+            "replication" : "#0",
+            "resultdir" : "results",
+            "runnumber" : "0",
+            "seedset" : "0"
+        },
+        "itervars" : {
+        },
+        "config" : [
+            { "network" : "Network" },
+            { "sim-time-limit" : "200s" },
+            { "Network.Transmitter.traTx.bufferSize" : "2000000" },
+            { "Network.Transmitter.gen.generationInterval" : "exponential(0.1)" },
+            { "Network.Transmitter.gen.packetByteSize" : "12500" },
+            { "Network.Subnet.bufferSize" : "100" },
+            { "Network.FeedbackChannel.bufferSize" : "200" },
+            { "Network.Receiver.traRx.bufferSize" : "200" }
+        ],
+        "scalars" : [
+            {
+                "module" : "Network.Transmitter.gen",
+                "name" : "Generated packets",
+                "value" : 1979
+            },
+            {
+                "module" : "Network.Transmitter.traTx",
+                "name" : "Transmitter Number of dropped packets",
+                "value" : 0
+            },
+            {
+                "module" : "Network.Transmitter.traTx",
+                "name" : "Transmitter Final buffer size",
+                "value" : 929
+            },
+            {
+                "module" : "Network.Subnet",
+                "name" : "Number of dropped packets",
+                "value" : 0
+            },
+            {
+                "module" : "Network.Subnet",
+                "name" : "Final buffer size",
+                "value" : 50
+            },
+            {
+                "module" : "Network.FeedbackChannel",
+                "name" : "Number of dropped packets",
+                "value" : 0
+            },
+            {
+                "module" : "Network.FeedbackChannel",
+                "name" : "Final buffer size",
+                "value" : 0
+            },
+            {
+                "module" : "Network.Receiver.sink",
+                "name" : "Avg delay",
+                "value" : 49.748185102653
+            },
+            {
+                "module" : "Network.Receiver.sink",
+                "name" : "Number of packets",
+                "value" : 998
+            },
+            {
+                "module" : "Network.Receiver.sink",
+                "name" : "Delivered packets",
+                "value" : 998
+            },
+            {
+                "module" : "Network.Receiver.traRx",
+                "name" : "Receiver: Number of dropped packets",
+                "value" : 0
+            },
+            {
+                "module" : "Network.Receiver.traRx",
+                "name" : "Receiver: Final buffer size",
+                "value" : 0
+            },
+            {
+                "module" : "Network.Receiver.traRx",
+                "name" : "Receiver: Feedback messages count",
+                "value" : 0
+            }
+        ]
+    }
+}
