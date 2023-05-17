@@ -11,8 +11,9 @@ class Generator : public cSimpleModule
 private:
     cMessage *sendMsgEvent;
     cStdDev transmissionStats;
-    int genPacketsCount;
-    cOutVector generatedPackets;
+
+    unsigned int genPackets;
+    cOutVector genPacketsVector;
 
 public:
     Generator();
@@ -38,8 +39,8 @@ Generator::~Generator()
 void Generator::initialize()
 {
     // keeps track of the number of generated packets
-    genPacketsCount = 0;
-    generatedPackets.setName("Generated packets");
+    genPackets = 0;
+    genPacketsVector.setName("generated packets");
 
     transmissionStats.setName("TotalTransmissions");
     // create the send packet
@@ -50,7 +51,7 @@ void Generator::initialize()
 
 void Generator::finish()
 {
-    recordScalar("Generated packets", genPacketsCount);
+    recordScalar("generated packets", genPackets);
 }
 
 void Generator::handleMessage(cMessage *msg)
@@ -62,8 +63,8 @@ void Generator::handleMessage(cMessage *msg)
     // send to the output
     send(pkt, "out");
 
-    genPacketsCount++;
-    generatedPackets.record(genPacketsCount);
+    genPackets++;
+    genPacketsVector.record(genPackets);
 
     // compute the new departure time
     simtime_t departureTime = simTime() + par("generationInterval");
