@@ -17,7 +17,7 @@ private:
 
     // variables for statistics logging
     unsigned int droppedPackets; // acc for the number of dropped packets
-    cOutVector packetDropVector;
+    cOutVector droppedPacketsVector;
     cOutVector bufferSizeVector;
 
     // helper function for handling the queuing process in the buffer
@@ -51,16 +51,16 @@ void Queue::initialize()
     endServiceEvent = new cMessage("endService");
 
     droppedPackets = 0u;
-    packetDropVector.setName("Dropped packets");
+    droppedPacketsVector.setName("dropped packets");
 
-    bufferSizeVector.setName("Buffer size");
+    bufferSizeVector.setName("buffer size");
 }
 
 void Queue::finish()
 {
     // stats record
-    recordScalar("Number of dropped packets", droppedPackets);
-    recordScalar("Final buffer size", buffer.getLength());
+    recordScalar("dropped packets", droppedPackets);
+    recordScalar("final buffer size", buffer.getLength());
 }
 
 void Queue::handleMessage(cMessage *msg)
@@ -107,7 +107,7 @@ void Queue::enqueueInBuffer(cMessage *msg)
         this->bubble("packet dropped");
         // update the dropped packets counter
         droppedPackets++;
-        packetDropVector.record(droppedPackets);
+        droppedPacketsVector.record(droppedPackets);
     }
     else
     {

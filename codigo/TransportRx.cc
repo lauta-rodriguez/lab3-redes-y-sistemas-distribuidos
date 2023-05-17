@@ -23,9 +23,6 @@ private:
     cMessage *endServiceEvent;
     simtime_t serviceTime;
 
-    // feedback msg counter
-    unsigned int fdbcount;
-
     // variables for statistics logging
     unsigned int droppedPackets; // acc for the number of dropped packets
     cOutVector packetDropVector;
@@ -66,19 +63,16 @@ void TransportRx::initialize()
     endServiceEvent = new cMessage("endService");
 
     droppedPackets = 0u;
-    packetDropVector.setName("Receiver: Dropped packets");
+    packetDropVector.setName("dropped packets");
 
-    bufferSizeVector.setName("Receiver: Buffer size");
-
-    fdbcount = 0u;
+    bufferSizeVector.setName("buffer size");
 }
 
 void TransportRx::finish()
 {
     // stats record
-    recordScalar("Receiver: Number of dropped packets", droppedPackets);
-    recordScalar("Receiver: Final buffer size", buffer.getLength());
-    recordScalar("Receiver: Feedback messages count", fdbcount);
+    recordScalar("dropped packets", droppedPackets);
+    recordScalar("final buffer size", buffer.getLength());
 }
 
 void TransportRx::handleBufferService(cMessage *msg)

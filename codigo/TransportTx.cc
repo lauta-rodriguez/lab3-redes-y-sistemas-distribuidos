@@ -24,8 +24,7 @@ private:
     simtime_t BOTTLENECK_WINDOW;
 
     // variables for statistics logging
-    unsigned int droppedPackets; // acc for the number of dropped packets
-    cOutVector packetDropVector;
+    unsigned int sentPackets;
     cOutVector bufferSizeVector;
 
     // defines how many seconds the network is considered to be bottlenecked
@@ -71,10 +70,9 @@ void TransportTx::initialize()
     buffer.setName("Transmitter Data buffer");
     endServiceEvent = new cMessage("endService");
 
-    droppedPackets = 0u;
-    packetDropVector.setName("Transmitter Dropped packets");
+    sentPackets = 0u;
 
-    bufferSizeVector.setName("Transmitter Buffer size");
+    bufferSizeVector.setName("buffer size");
 
     BOTTLENECK_WINDOW = 0u;
     mod = k;
@@ -84,9 +82,9 @@ void TransportTx::initialize()
 
 void TransportTx::finish()
 {
-    // stats record
-    recordScalar("Transmitter Number of dropped packets", droppedPackets);
-    recordScalar("Transmitter Final buffer size", buffer.getLength());
+    // save scalar results
+    recordScalar("sent packets", sentPackets);
+    recordScalar("final buffer size", buffer.getLength());
 }
 
 void TransportTx::handleMessage(cMessage *msg)
@@ -121,6 +119,9 @@ void TransportTx::handleMessage(cMessage *msg)
                 cPacket *pkt = (cPacket *)buffer.pop();
                 // send packet
                 send(pkt, "connSubnet$o");
+                // update stats
+                sentPackets++;
+
                 // start new service
                 // serviceTime now depends on pkt->getDuration()
                 serviceTime = pkt->getDuration();
@@ -152,9 +153,6 @@ void TransportTx::enqueueInBuffer(cMessage *msg)
         // drop the packet
         delete msg;
         this->bubble("packet dropped");
-        // update the dropped packets counter
-        droppedPackets++;
-        packetDropVector.record(droppedPackets);
     }
     else
     {
