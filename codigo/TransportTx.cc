@@ -18,13 +18,13 @@ using namespace omnetpp;
 class TransportTx : public cSimpleModule
 {
 private:
-    cQueue buffer;
-    cMessage *endServiceEvent;
-    simtime_t serviceTime;
+    cQueue buffer;             // queue for storing data packets
+    cMessage *endServiceEvent; // event indicating the end of service time
+    simtime_t serviceTime;     // service time for processing a packet
 
     // variables for statistics logging
-    unsigned int sentPackets;
-    cOutVector bufferSizeVector;
+    unsigned int sentPackets;    // number of packets sent
+    cOutVector bufferSizeVector; // vector for recording buffer size over time
 
     // defines how many seconds the network is considered to be bottlenecked
     // after a feedback message is recieved
