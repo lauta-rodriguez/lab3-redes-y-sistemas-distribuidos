@@ -90,7 +90,7 @@ Podemos observar la pérdida de paquetes ocasionada por los cuellos de botella, 
 
 # Algoritmo de control de flujo y congestión
 
-Para implementar el algoritmo propuesto necesitamos modificar la red básica agregadole un canal de comunicación `FeebackChannel` por el cual el receptor `Receiver` envian `mensajes de feedback` que informan el estado de la red al transmisor `Transmitter`, quedando la red de la siguiente forma:
+Para implementar el algoritmo propuesto necesitamos modificar la red básica agregadole un canal de comunicación `FeedbackChannel` por el cual el receptor `Receiver` envian `mensajes de feedback` que informan el estado de la red al transmisor `Transmitter`, quedando la red de la siguiente forma:
 
 ![modified network](/imagenes/modified-network.svg "modified-network")
 
@@ -98,11 +98,13 @@ El algoritmo que implementamos se divide en dos partes:
 
 ### Detección del estado de la red
 
-Tanto en el buffer de la subred como en el del nodo receptor se establece un umbral en base a la capacidad del mismo. Cuando se alcanza el umbral del buffer en alguno de los nodos, este envía un paquete de tipo `feedback` por el canal de comunicación.
+Se establece un umbral del 80% de capacidad tanto en el buffer de la subred como en el del nodo receptor. Cuando alguno de estos nodos alcanza este umbral de utilización del buffer, se envía un paquete de tipo `feedback` al transmisor a través del canal de comunicación.
 
-El transmisor lleva cuenta del estado de la red mediante un booleano `bottleneck` que se setea a `true` la primera vez que se recibe un mensaje de feedback.
+El transmisor monitorea el estado de la red utilizando un booleano llamado `bottleneck`, que se activa (se establece en `true`) cuando se recibe el primer paquete de `feedback`. A partir de ese momento, se define una ventana de congestión (`CONGESTION_WINDOW`), que indica que hay un cuello de botella en la red, ya sea en la subred o en el nodo receptor. Durante este período, se ignorarán los paquetes de `feedback` que lleguen.
 
-Se define un tiempo arbitrario `TIMER` durante el cual se considera que la red sigue en estado `bottleneck`. Lo utilizamos para definir un tiempo en la simulación a partir del cual dejamos de estar en estado `bottleneck`, dicho tiempo queda determinado por la variable `CONGESTION_WINDOW = simTime() + TIMER`.
+La `CONGESTION_WINDOW` se define como un intervalo de tiempo dentro de la simulación, que comienza en el momento en que se recibe el paquete de `feedback`. Para determinar si hay un cuello de botella en la red, se verifica si el tiempo de simulación ha superado el valor de la `CONGESTION_WINDOW` o no. Una vez transcurrido este tiempo, se desactiva la variable booleana `bottleneck` (se establece en `false`) para indicar que el cuello de botella en la red ha finalizado.
+
+El cálculo de este intervalo se realiza mediante la fórmula: `CONGESTION_WINDOW = simTime() + TIMER`, donde `TIMER` es una constante en segundos de valor arbitario.
 
 ### Regulación del transmisor
 
@@ -110,9 +112,15 @@ La regulación del transmisor es efectiva cuando se considera que la red se encu
 
 Tanto en la red básica como en la modificada, la velocidad de inyección de paquetes en la red está determinada por la frecuencia de los eventos llamados `endServiceEvent`, los cuales se planifican en función del tiempo actual de la simulación y el `serviceTime` (que es el tiempo necesario para atender un paquete en cola).
 
-Para regular la velocidad de transmisión del transmisor, incrementamos el `serviceTime` de todos los paquetes que se envían durante ese período.
+Para regular la velocidad de transmisión del transmisor, incrementamos el `serviceTime` de todos los paquetes que se envían durante el período `CONGESTION_WINDOW`. Esto lo hacemos multiplicando el `serviceTime` por una variable `mod`.
 
-Además, hemos implementado un sistema de penalización que aumenta aún más el `serviceTime` en caso de que ocurran cuellos de botella cercanos en el tiempo.
+Adicionalmente, hemos implementado un sistema de penalización que aumenta aún más el `serviceTime` en caso de que ocurran cuellos de botella cercanos en el tiempo. Este sistema de penalización se aplica como un multiplicador adicional sobre `mod`.
+
+Para determinar si es necesario aplicar una penalización a una nueva congestión, establecemos una `PENALIZATION_WINDOW` que funciona de manera similar a la `CONGESTION_WINDOW`, con la diferencia de que esta entra en efecto después de que la última congestión haya finalizado. Al producirse un nuevo cuello de botella, se verifica si el tiempo de simulación ha superado el valor de la `PENALIZATION_WINDOW` y en tal caso, se duplica el modificador aplicado al `serviceTime`.
+
+Dejamos la siguiente línea del tiempo para visualizar el funcionamiento del algoritmo:
+
+![timeline](imagenes/timeline.png)
 
 # Resultados
 
@@ -149,6 +157,8 @@ Nuestro algoritmo logra cumplir su objetivo principal al evitar la pérdida de p
 Observamos que el retardo se incrementa debido a la limitación del send rate del transmisor, que se realiza para evitar la congestión en el receptor. Esta limitación proporciona tiempo adicional al receptor para procesar y liberar los paquetes de su búfer, lo que garantiza que no se sature. Como resultado, la entrega de paquetes experimenta un mayor retardo en comparación con la red básica.
 
 En resumen, aunque nuestro algoritmo es efectivo en evitar la pérdida de paquetes, reconocemos que existe una compensación en forma de mayor retardo en la entrega de paquetes.
+
+Para mejorar el algoritmo implementado, se nos ocurren algunas ideas. Por ejemplo, podríamos implementar una especie de `slow start` que reduzca drásticamente la frecuencia de inyección de paquetes en la red al detectar un cuello de botella, y que incremente gradualmente esta frecuencia hasta alcanzar su valor original. Este incremento podría ser detenido por la aparición de un nuevo cuello de botella, lo que reiniciaría el proceso de `slow start`. Además, en lugar de determinar de manera arbitraria el tiempo de la `CONGESTION_WINDOW` y la tasa de reducción del _send rate_ del emisor, podríamos calcular estos valores en función de la utilización del búfer en el que se haya producido el cuello de botella.
 
 # Referencias
 
